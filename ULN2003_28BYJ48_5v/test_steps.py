@@ -11,10 +11,9 @@ GPIO.setmode(GPIO.BCM)
 
 class TestStepper:
     #Use BCM (Broadcom) pin references . These are universally understood (mostly) versus physical pin location
-    #Define GPIO signals to use:
-    #Physical pins: 11, 15, 16, 18
-    #Broadcom pin references: GPIO0, GPIO3, GPIO4, GPIO5
-    step_pins = [17, 22, 23, 24]
+    #Define GPIO signals to use (Broadcom specification:
+    motor_one_step_pins = [17, 22, 23, 24]
+    motor_two_step_pins = [6, 13, 19, 26]
     motor_led_pin = 25
 
     #Assign all involved pins as OUTPUT since we are only talking to the motor controller. This is a one-way conversation
@@ -55,12 +54,17 @@ class TestStepper:
 
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
-        for pin in self.step_pins:
+        for pin in self.motor_one_step_pins:
             print("Assigning pin {0} as OUT".format(pin))
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, False)
 
-    def rotate_clockwise_degree(self, sequence_speed=.001, degrees=90):
+        for pin in self.motor_two_step_pins:
+            print("Assigning pin {0} as OUT".format(pin))
+            GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, False)
+
+    def rotate_clockwise_degree(self, motor_pins, sequence_speed=.001, degrees=90):
         degree_per_step = 0.087890625
         current_degree = degree_per_step
         try:
@@ -73,7 +77,7 @@ class TestStepper:
                     led_thread = threading.Thread(target=TestLED().ledTimed, args=(25, .5,))
                     led_thread.start()
                 for pin in range(0, 4):
-                    xpin = self.step_pins[pin]
+                    xpin = motor_pins[pin]
                     if self.advanced_sequence[self.advanced_step_counter][pin] != 0:
                         GPIO.output(xpin, True)
                     else:
@@ -95,7 +99,7 @@ class TestStepper:
             #GPIO.cleanup()
             #print("Shutting down motor clean")
 
-    def rotate_counter_clockwise_degree(self, sequence_speed=.001, degrees=90):
+    def rotate_counter_clockwise_degree(self, motor_pins, sequence_speed=.001, degrees=90):
         degree_per_step = 0.087890625
         current_degree = degree_per_step
         try:
@@ -108,7 +112,7 @@ class TestStepper:
                     led_thread = threading.Thread(target=TestLED().ledTimed, args=(25, .5,))
                     led_thread.start()
                 for pin in range(0, 4):
-                    xpin = self.step_pins[pin]
+                    xpin = motor_pins[pin]
                     if self.reverse_sequence[self.reverse_step_counter][pin] != 0:
                         GPIO.output(xpin, True)
                     else:
@@ -135,5 +139,9 @@ class TestStepper:
 #TestStepper().rotate_clockwise(.001, 4.595)
 #4.62 is the sweet spot for sequencially running counter-clockwise after a clockwise rotation:
 #TestStepper().rotate_counter_clockwise(.001, 4.595)
-TestStepper().rotate_clockwise_degree(.001, 360)
-TestStepper().rotate_counter_clockwise_degree(.001, 360)
+motor_one_step_pins = [17, 22, 23, 24]
+motor_two_step_pins = [6, 13, 19, 26]
+t1 = threading.Thread(target=TestStepper().rotate_clockwise_degree, args=(motor_one_step_pins, .001, 360))
+t1.start()
+t2 = threading.Thread(target=TestStepper().rotate_counter_clockwise_degree, args=(motor_two_step_pins, .001, 360))
+t2.start()

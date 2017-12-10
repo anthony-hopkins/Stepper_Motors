@@ -11,14 +11,12 @@ GPIO.setmode(GPIO.BCM)
 
 #Turn off warnings since this is a raw shutdown:
 GPIO.setwarnings(False)
-#Define GPIO signals to use:
-#Physical pins: 11, 15, 16, 18
-#Broadcom pin references: GPIO0, GPIO3, GPIO4, GPIO5
-step_pins = [17, 22, 23, 24]
 
 #Assign all involved pins as OUTPUT since we are only talking to the motor controller. This is a one-way conversation
-for pin in step_pins:
-    print("Assigning pin {0} as OUT".format(pin))
-    GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, False)
+class Pins_Shutdown:
 
+    def shutdown_pins(pins):
+        for pin in pins:
+            print("Assigning pin {0} as OUT".format(pin))
+            GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, False)
