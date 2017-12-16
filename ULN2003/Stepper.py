@@ -2,13 +2,11 @@
 
 #This class is to test the VERY basic functionality of stepping the 28BYJ-48 5v stepper motor using the ULN2008 motor controller
 
-import sys
+import threading
 import time
 import RPi.GPIO as GPIO
-from LED import LEDs
-import threading
 from .Pin_Shutdown import Pins_Shutdown
-
+from LED.LEDs import LED
 GPIO.setmode(GPIO.BCM)
 
 class Stepper:
@@ -47,27 +45,9 @@ class Stepper:
         self.init_pins(motor_pins)
         #Set coil sequence for clockwise rotation. This is a 4 phase stepper motor, so 8 total steps in our sequence:
         if direction == "clockwise" or direction != "counter-clockwise":
-            sequence = [
-                [1, 0, 0, 0],
-                [1, 1, 0, 0],
-                [0, 1, 0, 0],
-                [0, 1, 1, 0],
-                [0, 0, 1, 0],
-                [0, 0, 1, 1],
-                [0, 0, 0, 1],
-                [1, 0, 0, 1]
-                ]
+            sequence = self.forward_sequence
         else:
-            sequence = [
-                [0, 0, 0, 1],
-                [0, 0, 1, 1],
-                [0, 0, 1, 0],
-                [0, 1, 1, 0],
-                [0, 1, 0, 0],
-                [1, 1, 0, 0],
-                [1, 0, 0, 0],
-                [1, 0, 0, 1]
-            ]
+            sequence = self.reverse_sequence
         sequence_counter = 0
         current_degree = self.degree_per_step
         try:
