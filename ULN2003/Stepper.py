@@ -5,7 +5,7 @@
 import threading
 import time
 import RPi.GPIO as GPIO
-from .Pin_Shutdown import Pins_Shutdown
+from Pin_Shutdown import Pins_Shutdown
 from LED.LEDs import LED
 GPIO.setmode(GPIO.BCM)
 
@@ -24,13 +24,13 @@ class Stepper:
                 [1, 0, 0, 1]
                 ]
     reverse_sequence = [
-                [1, 0, 0, 0],
-                [1, 1, 0, 0],
-                [0, 1, 0, 0],
-                [0, 1, 1, 0],
-                [0, 0, 1, 0],
-                [0, 0, 1, 1],
                 [0, 0, 0, 1],
+                [0, 0, 1, 1],
+                [0, 0, 1, 0],
+                [0, 1, 1, 0],
+                [0, 1, 0, 0],
+                [1, 1, 0, 0],
+                [1, 0, 0, 0],
                 [1, 0, 0, 1]
                 ]
 
@@ -57,7 +57,7 @@ class Stepper:
             while current_degree <= degrees:
                 if (current_degree % 90.0) == 0:
                     print("Achieved {0} degrees".format(current_degree))
-                    led_thread = threading.Thread(target=LED().ledTimed, args=(25, .5,))
+                    led_thread = threading.Thread(target=LED().ledTimed, args=(21, .5,))
                     led_thread.start()
                 for pin in range(0, 4):
                     xpin = motor_pins[pin]
